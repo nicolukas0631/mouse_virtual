@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import followhands as fh
 import autopy
+import pyautogui
 
 wcam, hcam = 640, 480
 chart = 100
@@ -40,16 +41,30 @@ while True:
             cv2.circle(frame, (x1, y1), 15, (0, 0, 0), cv2.FILLED)
             pubix, pubiy = cubix, cubiy
 
-        if fingers[1] == 1 and fingers[2] == 1:  # Both fingers up
-
-            length, frame, center = detector.findDistance(8, 12, frame)
-            cv2.line(frame, (x1, y1), (x2, y2), (0, 0, 255), 3)
-            print(length)
-
-            if length < 40:  # If fingers are close enough
-                cv2.circle(frame, center, 10, (0, 0, 0), cv2.FILLED)
+# Left click with index and thumb
+        if fingers[1] == 1 and fingers[0] == 1:  # Índice y pulgar levantados
+            length, frame, center = detector.findDistance(8, 4, frame)
+            cv2.line(frame, (list[8][1], list[8][2]), (list[4][1], list[4][2]), (0, 255, 0), 3)
+            if length < 40:
+                cv2.circle(frame, center, 10, (0, 255, 0), cv2.FILLED)
                 autopy.mouse.click(autopy.mouse.Button.LEFT)
 
+        # Right click with index and middle finger
+        if fingers[1] == 1 and fingers[2] == 1:  # Índice y medio levantados
+            length, frame, center = detector.findDistance(8, 12, frame)
+            cv2.line(frame, (list[8][1], list[8][2]), (list[12][1], list[12][2]), (255, 0, 0), 3)
+            if length < 20:
+                cv2.circle(frame, center, 10, (255, 0, 0), cv2.FILLED)
+                autopy.mouse.click(autopy.mouse.Button.RIGHT)
+
+
+                
+        if all(f == 0 for f in fingers):  # Mano cerrada (puño)
+            pyautogui.scroll(-50)  # Scroll hacia abajo
+        elif all(f == 1 for f in fingers):  # Mano completamente abierta
+            pyautogui.scroll(50)   # Scroll hacia arriba
+
+            
     cv2.imshow("Virtual Mouse", frame)
     k = cv2.waitKey(1)
     if k == 27:  
